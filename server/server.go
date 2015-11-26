@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/eaciit/knot"
 	//"net/http"
 )
@@ -8,8 +9,21 @@ import (
 type ServerController struct {
 }
 
-func (s *ServerController) Status(r *knot.Request) interface{} {
-	return "Sebar Server v 0.9 (c) EACIIT"
+func (s *ServerController) Status(kr *knot.Request) interface{} {
+	ret := "Sebar Server v 0.9 (c) EACIIT \n"
+	keys := kr.QueryKeys()
+	for _, k := range keys {
+		ret += fmt.Sprintf("%s = %v \n", k, kr.Query(k))
+	}
+	return ret
+}
+
+func (s *ServerController) StudentJson(kr *knot.Request) interface{} {
+	return struct {
+		ID    string
+		Name  string
+		Score int
+	}{"Student01", "Nama Student", 100}
 }
 
 func (s *ServerController) Stop(r *knot.Request) interface{} {
