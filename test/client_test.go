@@ -54,8 +54,8 @@ func createRandomString(randomLength int) string {
 
 func TestPut(t *testing.T) {
 	if e := getToken(); e != nil {
-		he(t, e)
-		return
+		//he(t, e)
+		//return
 	}
 
 	surl := restPrefix + "/put"
@@ -72,6 +72,7 @@ func TestPut(t *testing.T) {
 		fmt.Printf("Saving %d value %s", i, data.Data)
 
 		r, e := toolkit.HttpCall(surl, "XPUT", toolkit.GetEncodeByte(data), nil)
+		//e = nil
 		if e != nil {
 			fmt.Printf("... Fail: %s \n", e.Error())
 		} else {
@@ -80,6 +81,7 @@ func TestPut(t *testing.T) {
 			} else {
 				fmt.Println("...Done")
 			}
+			fmt.Println("...Done")
 		}
 	}
 }
