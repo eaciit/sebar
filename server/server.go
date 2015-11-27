@@ -18,7 +18,8 @@ func (s *ServerController) Status(kr *knot.Request) interface{} {
 	return ret
 }
 
-func (s *ServerController) StudentJson(kr *knot.Request) interface{} {
+func (s *ServerController) Student(kr *knot.Request) interface{} {
+	kr.RouteConfig().OutputType = knot.OutputJson
 	return struct {
 		ID    string
 		Name  string
