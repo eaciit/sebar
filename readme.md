@@ -15,9 +15,9 @@ server -start -port 8005 -master server1
  -memsize	define maximal meory size
 
 ## Rest 
-/r/list			-list all variables
+__/r/list			-list all variables__
 
-/r/add 			-add variable
+__/r/add 			-add variable__
 add parameter
 - public bool qs
 - cluster string qs 
@@ -26,7 +26,7 @@ add parameter
 - type string qs - support for only standard type, other than standard will be stored as interface{}
 - value string qs or payload
 
-/r/get			- get variable value
+__/r/get			- get variable value__
 get parameter
 - owner string qs default public
 - cluster string qs default common
@@ -42,7 +42,7 @@ return
 ```
 
 ## Auth
-/r/login 
+__/r/login__ 
 - user
 - pass
 
@@ -55,13 +55,13 @@ return {
 }
 ```
 
-/r/logout
+__/r/logout__
 - user
 - token
 
 
 ## Query
-/r/query
+__/r/query__
 - op string 	save/exec
 - name string qs
 - query payload
