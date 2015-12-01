@@ -10,7 +10,7 @@ A distributed in-memory key-value store. Fully written in Golang
 ```
 
 # Start/Stop Parameters
-```
+```go
  -start 	to start
  -stop		to stop
  -port		define port
@@ -19,7 +19,7 @@ A distributed in-memory key-value store. Fully written in Golang
 ```
 
 # Rest 
-```
+```go
 /r/list			-list all variables
 
 /r/add 			-add variable
@@ -46,7 +46,7 @@ return
 ```
 
 # Auth
-```
+```go
 /r/login 
 - user
 - pass
@@ -64,7 +64,7 @@ return {
 ```
 
 # Query
-```
+```go
 /r/query
 - op string 	save/exec
 - name string qs
