@@ -3,23 +3,18 @@ A distributed in-memory key-value store. Fully written in Golang
 
 # Usage
 ```
- 
- server -start -port 8005
- server -start -port 8005 -master server1
-
+server -start -port 8005
+server -start -port 8005 -master server1
 ```
 
 ## Start/Stop Parameters
-```go
  -start 	to start
  -stop		to stop
  -port		define port
  -master	define master sebar server
  -memsize	define maximal meory size
-```
 
 ## Rest 
-```go
 /r/list			-list all variables
 
 /r/add 			-add variable
@@ -37,6 +32,7 @@ get parameter
 - cluster string qs default common
 - key string qs
 
+```go
 return
 {
 	found: bool,
@@ -46,37 +42,39 @@ return
 ```
 
 ## Auth
-```go
 /r/login 
 - user
 - pass
 
+```go
 return {
 	status: OK/NOK
 	message: string
 	token: string
 	expiry: datetime
 }
+```
 
 /r/logout
 - user
 - token
-```
+
 
 ## Query
-```go
 /r/query
 - op string 	save/exec
 - name string qs
 - query payload
 
+```go
 return {
 	status: OK/NOK
 	message: string
 	data: []byte
 }
+```
 
-sample of query
+Sample of query
+```sql
 From("public.table1").Group("")
-``
-
+```
