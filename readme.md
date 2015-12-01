@@ -9,7 +9,7 @@ A distributed in-memory key-value store. Fully written in Golang
 
 ```
 
-# Start/Stop Parameters
+## Start/Stop Parameters
 ```go
  -start 	to start
  -stop		to stop
@@ -18,7 +18,7 @@ A distributed in-memory key-value store. Fully written in Golang
  -memsize	define maximal meory size
 ```
 
-# Rest 
+## Rest 
 ```go
 /r/list			-list all variables
 
@@ -45,7 +45,7 @@ return
 }
 ```
 
-# Auth
+## Auth
 ```go
 /r/login 
 - user
@@ -63,7 +63,7 @@ return {
 - token
 ```
 
-# Query
+## Query
 ```go
 /r/query
 - op string 	save/exec
