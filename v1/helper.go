@@ -1,6 +1,6 @@
 package sebar
 
-func NewServer(role int, url string) IServer {
+func NewServer(role NodeRoleEnum, url string) IServer {
 	if role == RoleMaster {
 		m := new(Master)
 		m.Address = url
@@ -11,4 +11,8 @@ func NewServer(role int, url string) IServer {
 		return n
 	}
 	return nil
+}
+
+func MakeUrl(serverUrl, role, method string) string {
+	return serverUrl + "/" + role + "/" + method
 }

@@ -3,6 +3,7 @@ package sebar
 type Node struct {
 	SebarServer
 
+	nodeRole      NodeRoleEnum
 	masterAddress string
 	masterSecret  string
 }

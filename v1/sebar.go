@@ -4,11 +4,13 @@ import (
 	"github.com/eaciit/knot/knot.v1"
 )
 
+type NodeRoleEnum string
+
 const (
-	RoleMaster        int = 1
-	RoleNode          int = 5
-	RoleReplicaMaster int = 101
-	RoleReplicaNode   int = 105
+	RoleMaster        NodeRoleEnum = "master"
+	RoleNode          NodeRoleEnum = "node"
+	RoleReplicaMaster NodeRoleEnum = "replicamaster"
+	RoleReplicaNode   NodeRoleEnum = "replicanode"
 )
 
 func init() {
