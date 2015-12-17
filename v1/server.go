@@ -1,7 +1,7 @@
 package sebar
 
 import (
-	"errors"
+	//"errors"
 	"net/url"
 )
 
@@ -18,12 +18,12 @@ func (s *SebarServer) Stop() error {
 	return nil
 }
 
-func (s *SebarServer) SetURL(rawurl string) error {
+func (s *SebarServer) SetURL(rawurl string) *SebarServer {
 	u, e := url.Parse(rawurl)
 	if e != nil {
-		return errors.New("Unable to parse URL: " + rawurl)
+		return s
 	}
 	s.Protocol = u.Scheme
 	s.Address = u.Host
-	return nil
+	return s
 }

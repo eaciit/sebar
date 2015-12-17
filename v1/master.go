@@ -69,7 +69,31 @@ func (m *Master) AddNode(k *knot.WebContext) interface{} {
 		return result.SetErrorTxt("Not authorised")
 	}
 	node := new(Node)
-	node.nodeRole = NodeRoleEnum(model.Role)
+	node.Role = NodeRoleEnum(model.Role)
+	node.Secret = toolkit.GenerateRandomString("", 32)
 	node.SetURL(model.URL)
+	nodeKey := node.Key()
+	if _, exist := m.nodes[nodeKey]; exist {
+		return result.SetErrorTxt("Node already exist: " + node.url + " [" + string(node.Role) + "]")
+	}
+	m.nodes[nodeKey] = node
+	result.Data = node.Secret
+	return result
+}
+
+func (m *Master) RemoveNode(k *knot.WebContext) interface{} {
+	result := toolkit.NewResult()
+	var model struct {
+		URL, Secret string
+		Role        NodeRoleEnum
+	}
+	k.GetPayload(&model)
+	if !m.validate("node", model.Secret, model.URL) {
+		return result.SetErrorTxt("Invalid node call authorisation")
+	}
+	node := Node{}
+	node.Role = model.Role
+	node.SetURL(model.URL)
+	delete(m.nodes, node.Key())
 	return result
 }
