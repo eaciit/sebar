@@ -97,3 +97,13 @@ func (m *Master) RemoveNode(k *knot.WebContext) interface{} {
 	delete(m.nodes, node.Key())
 	return result
 }
+
+func (m *Master) Write(k *knot.WebContext) interface{} {
+	result := toolkit.NewResult()
+	return result
+}
+
+func (m *Master) Read(k *knot.WebContext) interface{} {
+	result := toolkit.NewResult()
+	return result
+}

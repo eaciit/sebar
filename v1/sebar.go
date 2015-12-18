@@ -7,6 +7,9 @@ import (
 type NodeRoleEnum string
 
 const (
+	WriteMemory  int = 1
+	WriteStorage int = 2
+
 	RoleMaster        NodeRoleEnum = "master"
 	RoleNode          NodeRoleEnum = "node"
 	RoleReplicaMaster NodeRoleEnum = "replicamaster"
