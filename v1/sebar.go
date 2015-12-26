@@ -10,10 +10,12 @@ const (
 	WriteMemory  int = 1
 	WriteStorage int = 2
 
-	RoleMaster        NodeRoleEnum = "master"
-	RoleNode          NodeRoleEnum = "node"
-	RoleReplicaMaster NodeRoleEnum = "replicamaster"
-	RoleReplicaNode   NodeRoleEnum = "replicanode"
+	RoleCoordinator        NodeRoleEnum = "COR"
+	RoleCoordinatorReplica NodeRoleEnum = "CORR"
+	RoleWeb                NodeRoleEnum = "WEB"
+	RoleWorker             NodeRoleEnum = "WRK"
+	RoleStorage            NodeRoleEnum = "STR"
+	RoleStorageReplica                  = "STRR"
 )
 
 func init() {

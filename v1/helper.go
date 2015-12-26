@@ -5,14 +5,10 @@ import (
 )
 
 func NewServer(role NodeRoleEnum, url string) IServer {
-	if role == RoleMaster {
-		m := new(Master)
+	if role == RoleCoordinator {
+		m := new(Coordinator)
 		m.Address = url
 		return m
-	} else if role == RoleNode {
-		n := new(Node)
-		n.Address = url
-		return n
 	}
 	return nil
 }
