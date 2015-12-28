@@ -20,12 +20,12 @@ type SebarServer struct {
 func (s *SebarServer) Start() error {
 	var e error
 
-	e := s.Register(s)
+	e = s.Register(s)
 	if e != nil {
 		return errors.New("Unable to register RPC: " + e.Error())
 	}
 
-	e := s.AppServer.Start(false)
+	e = s.AppServer.Start(false)
 	return nil
 }
 
