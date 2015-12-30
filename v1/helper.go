@@ -9,6 +9,13 @@ func NewServer(role NodeRoleEnum, url string) IServer {
 		m := new(Coordinator)
 		m.Address = url
 		return m
+	} else if role == RoleStorage {
+		s := new(Storage)
+		s.Address = url
+		return s
+	} else if role == RoleStorageReplica {
+		//s := new(StorageReplica)
+		//return s
 	}
 	return nil
 }

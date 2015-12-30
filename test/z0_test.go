@@ -2,9 +2,10 @@ package sebar_test
 
 import (
 	"github.com/eaciit/sebar/v1"
-	"strconv"
+	//"strconv"
+	"fmt"
 	"testing"
-	"time"
+	//"time"
 )
 
 var (
@@ -14,25 +15,38 @@ var (
 	userSecret   = ""
 	masterUrl    = "localhost:12345"
 
-	master  *sebar.Master
-	nodes   []*sebar.Node
-	session *sebar.Session
+	coordinator *sebar.Coordinator
+	nodes       []*sebar.Node
+	session     *sebar.Session
 )
 
 func TestMaster(t *testing.T) {
-	master = sebar.NewServer(sebar.RoleMaster, masterUrl).(*sebar.Master)
-	master.Secret = secretMaster
-	e := master.Start()
+	coordinator = sebar.NewServer(sebar.RoleCoordinator, masterUrl).(*sebar.Coordinator)
+	coordinator.Secret = secretMaster
+	e := coordinator.Start()
 	if e != nil {
 		t.Error(e)
 	}
 }
 
+func TestStorageNode(t *testing.T) {
+	var storage *sebar.Storage
+	for i := 0; i < 5; i++ {
+		storage = sebar.NewServer(sebar.RoleStorage, fmt.Sprintf(":%d", 9601+i)).(*sebar.Storage)
+		storage.Coordinator = coordinator.Address
+		e := storage.Start()
+		if e != nil {
+			t.Error(e)
+		}
+	}
+}
+
+/*
 func TestNode(t *testing.T) {
 	for i := 0; i < 3; i++ {
-		node := sebar.NewServer(sebar.RoleNode, "http://localhost:"+strconv.Itoa(3500+i)).(*sebar.Node)
-		node.SetMaster(masterUrl, secretMaster)
-		e := node.Start()
+		node := sebar.NewServer(sebar.RoleWorker, "http://localhost:"+strconv.Itoa(3500+i)).(*sebar.Node)
+		//node.SetMaster(masterUrl, secretMaster)
+		e := node.Star()
 		if e == nil {
 			nodes = append(nodes, node)
 		}
@@ -64,3 +78,4 @@ func TestClose(t *testing.T) {
 		master.Stop()
 	}
 }
+*/

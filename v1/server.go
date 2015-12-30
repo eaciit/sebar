@@ -2,15 +2,16 @@ package sebar
 
 import (
 	"errors"
-	//"net/url"
-	"github.com/eaciit/appserver"
+	"github.com/eaciit/appserver/v1"
 )
 
 type IServer interface {
+	Start() error
+	Stop() error
 }
 
 type SebarServer struct {
-	appserver.AppServer
+	appserver.Server
 	Protocol, Address, Secret string
 
 	//_rpcAddress string
@@ -19,13 +20,15 @@ type SebarServer struct {
 
 func (s *SebarServer) Start() error {
 	var e error
+	secret := "sebar"
 
 	e = s.Register(s)
 	if e != nil {
 		return errors.New("Unable to register RPC: " + e.Error())
 	}
 
-	e = s.AppServer.Start(false)
+	s.Server.SetSecret(secret)
+	e = s.Server.Start(s.Address)
 	return nil
 }
 

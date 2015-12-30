@@ -1,30 +1,50 @@
 package sebar
 
 import (
-//"github.com/eaciit/knot/knot.v1"
-//"github.com/eaciit/toolkit"
-//"strings"
+	//"github.com/eaciit/knot/knot.v1"
+	"github.com/eaciit/toolkit"
+	"strings"
 )
 
 type Coordinator struct {
 	SebarServer
 
 	sessions map[string]*usersession
-	nodes    map[string]INode
+	nodes    map[string]map[string]Node
 }
 
-func (c *Coordinator) AddNode(id string, node INode) {
+func (c *Coordinator) AddNode(id string, node Node) {
 	if c.nodes == nil {
-		c.nodes = map[string]INode{}
+		c.nodes = map[string]map[string]Node{}
 	}
-	c.nodes[id] = node
+	nodeTypeNames := strings.Split(toolkit.TypeName(node), ".")
+	if len(nodeTypeNames) < 3 {
+		return
+	}
+
+	nodeTypeName := nodeTypeNames[len(nodeTypeNames)-1]
+	nodes, nodesExist := c.nodes[nodeTypeName]
+	if !nodesExist {
+		nodes = map[string]Node{}
+	}
+	nodes[id] = node
+	c.nodes[nodeTypeName] = nodes
 }
 
 func (c *Coordinator) RemoveNode(id string) {
 	if c.nodes == nil {
 		return
 	}
-	delete(c.nodes, id)
+	//delete(c.nodes, id)
+	for nodeTypeName, nodes := range c.nodes {
+		for _, node := range nodes {
+			if node.ID == id {
+				delete(nodes, id)
+				c.nodes[nodeTypeName] = nodes
+				return
+			}
+		}
+	}
 }
 
 /*
