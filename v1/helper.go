@@ -7,10 +7,12 @@ import (
 func NewServer(role NodeRoleEnum, url string) IServer {
 	if role == RoleCoordinator {
 		m := new(Coordinator)
+		m.Role = role
 		m.Address = url
 		return m
 	} else if role == RoleStorage {
 		s := new(Storage)
+		s.Role = role
 		s.Address = url
 		return s
 	} else if role == RoleStorageReplica {

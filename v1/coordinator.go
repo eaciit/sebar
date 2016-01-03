@@ -2,49 +2,86 @@ package sebar
 
 import (
 	//"github.com/eaciit/knot/knot.v1"
+	"errors"
 	"github.com/eaciit/toolkit"
-	"strings"
+	//"strings"
+	//"fmt"
 )
 
 type Coordinator struct {
 	SebarServer
 
 	sessions map[string]*usersession
-	nodes    map[string]map[string]Node
 }
 
-func (c *Coordinator) AddNode(id string, node Node) {
-	if c.nodes == nil {
-		c.nodes = map[string]map[string]Node{}
-	}
-	nodeTypeNames := strings.Split(toolkit.TypeName(node), ".")
-	if len(nodeTypeNames) < 3 {
-		return
-	}
+func (c *Coordinator) RequestJoin(in toolkit.M) *toolkit.Result {
+	var e error
+	r := toolkit.NewResult()
+	referenceID := in.GetString("auth_referenceid")
+	//toolkit.Println("User ID Request Join : " + referenceID)
+	secret := in.GetString("auth_secret")
+	nodeid := in.GetString("nodeid")
+	noderole := NodeRoleEnum(in.GetString("noderole"))
 
-	nodeTypeName := nodeTypeNames[len(nodeTypeNames)-1]
-	nodes, nodesExist := c.nodes[nodeTypeName]
-	if !nodesExist {
-		nodes = map[string]Node{}
+	//--- init  node
+	node := new(Node)
+	node.ID = nodeid
+	node.Role = noderole
+	node.UserID = referenceID
+	node.Secret = secret
+	//node.InitRPC()
+	e = c.AddNode(node.ID, node)
+	if e != nil {
+		r.SetErrorTxt(e.Error())
 	}
-	nodes[id] = node
-	c.nodes[nodeTypeName] = nodes
+	//fmt.Printf("Nodes now:\n%s\n", toolkit.JsonString(c.nodes))
+
+	r.Data = node.Secret
+	return r
 }
 
-func (c *Coordinator) RemoveNode(id string) {
-	if c.nodes == nil {
-		return
+func (c *Coordinator) Start() error {
+	errorPrefix := "Starting coordinator server fail: "
+	c.SebarServer.Server.RegisterRPCFunctions(c)
+
+	c.SebarServer.Server.Fn("requestjoin").AuthType = ""
+
+	e := c.SebarServer.Start()
+	if e != nil {
+		return errors.New(errorPrefix + e.Error())
 	}
-	//delete(c.nodes, id)
-	for nodeTypeName, nodes := range c.nodes {
+	return nil
+}
+
+func (c *Coordinator) Stop() error {
+	var e error
+	es := []string{}
+	errorPrefix := "Stop server " + c.Address + " fail: "
+
+	for _, nodes := range c.nodes {
 		for _, node := range nodes {
-			if node.ID == id {
-				delete(nodes, id)
-				c.nodes[nodeTypeName] = nodes
-				return
+			r := node.Call("stopserver", nil)
+			if r.Status != toolkit.Status_OK {
+				es = append(es, "["+node.ID+"] "+r.Message)
 			}
 		}
 	}
+
+	if len(es) > 0 {
+		return errors.New(errorPrefix + "\n" + func() string {
+			s := ""
+			for _, e := range es {
+				s += e + "\n"
+			}
+			return s
+		}())
+	}
+
+	e = c.SebarServer.Stop()
+	if e != nil {
+		return errors.New(errorPrefix + e.Error())
+	}
+	return nil
 }
 
 /*

@@ -22,7 +22,7 @@ var (
 
 func TestMaster(t *testing.T) {
 	coordinator = sebar.NewServer(sebar.RoleCoordinator, masterUrl).(*sebar.Coordinator)
-	coordinator.Secret = secretMaster
+	coordinator.AddUser(userID, password)
 	e := coordinator.Start()
 	if e != nil {
 		t.Error(e)
@@ -34,6 +34,8 @@ func TestStorageNode(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		storage = sebar.NewServer(sebar.RoleStorage, fmt.Sprintf(":%d", 9601+i)).(*sebar.Storage)
 		storage.Coordinator = coordinator.Address
+		storage.CoordinatorUserID = userID
+		storage.CoordinatorSecret = password
 		e := storage.Start()
 		if e != nil {
 			t.Error(e)
@@ -72,10 +74,15 @@ func TestWrite(t *testing.T) {
 		}{"ORD01", "Shell USA", time.Now(), 5000},
 		sebar.WriteMemory+sebar.WriteStorage)
 }
+*/
 
 func TestClose(t *testing.T) {
-	if master != nil {
-		master.Stop()
+	var e error
+	if coordinator != nil {
+		e = coordinator.Stop()
+		if e != nil {
+			t.Error(e)
+			return
+		}
 	}
 }
-*/
