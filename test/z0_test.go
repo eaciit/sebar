@@ -1,7 +1,9 @@
 package sebar_test
 
 import (
+	"github.com/eaciit/sebar/client.v1"
 	"github.com/eaciit/sebar/v1"
+	"github.com/eaciit/toolkit"
 	//"strconv"
 	"fmt"
 	"testing"
@@ -18,6 +20,8 @@ var (
 	coordinator *sebar.Coordinator
 	nodes       []*sebar.Node
 	session     *sebar.Session
+
+	client *sebarclient.Client
 )
 
 func TestMaster(t *testing.T) {
@@ -44,41 +48,31 @@ func TestStorageNode(t *testing.T) {
 	}
 }
 
-/*
-func TestNode(t *testing.T) {
-	for i := 0; i < 3; i++ {
-		node := sebar.NewServer(sebar.RoleWorker, "http://localhost:"+strconv.Itoa(3500+i)).(*sebar.Node)
-		//node.SetMaster(masterUrl, secretMaster)
-		e := node.Star()
-		if e == nil {
-			nodes = append(nodes, node)
-		}
-	}
-}
-
-func TestLogin(t *testing.T) {
-	var e error
-	session, e = sebar.Login(masterUrl, userID, password)
+func TestStorageSave(t *testing.T) {
+	client = new(sebarclient.Client)
+	client.Host = coordinator.Address
+	client.UserID = userID
+	client.Secret = password
+	e := client.Connect()
 	if e != nil {
-		t.Errorf(e.Error())
-		return
+		t.Error(e.Error())
 	}
-	t.Logf("User %s logged in. Secret: %s", userID, session.Secret)
-}
 
-func TestWrite(t *testing.T) {
-	session.Write("Public:Sales:Orders",
-		struct {
-			OrderID, Customer string
-			OrderDate         time.Time
-			Amount            float64
-		}{"ORD01", "Shell USA", time.Now(), 5000},
-		sebar.WriteMemory+sebar.WriteStorage)
+	toolkit.Printf("Writing Data:\n")
+	for i := 0; i < 200; i++ {
+		dataku := toolkit.RandInt(1000)
+		toolkit.Printf("%d ", dataku)
+	}
+	toolkit.Println("")
 }
-*/
 
 func TestClose(t *testing.T) {
 	var e error
+
+	if client != nil {
+		client.Close()
+	}
+
 	if coordinator != nil {
 		e = coordinator.Stop()
 		if e != nil {

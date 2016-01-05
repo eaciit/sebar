@@ -34,10 +34,14 @@ func (s *Storage) Start() error {
 	}
 
 	s.SebarServer.Server.RegisterRPCFunctions(s)
-	//toolkit.Printf("[%s] functions are: %v\n", s.Address, s.Server.Functions())
+	/*
+		for _, v := range s.Functions() {
+			v.AuthType = ""
+		}
+	*/
+
 	s.AddUser(s.CoordinatorUserID, s.CoordinatorSecret)
 	e := s.SebarServer.Start()
-	//s.Fn("stopserver").AuthType = ""
 	if e != nil {
 		return errors.New(errorPrefix + e.Error())
 	}
