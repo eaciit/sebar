@@ -34,7 +34,7 @@ func (n *Node) Call(methodName string, in toolkit.M) *toolkit.Result {
 		if e != nil {
 			n.clientRpc.Close()
 			n.clientRpc = nil
-			return toolkit.NewResult().SetError(e)
+			return toolkit.NewResult().SetErrorTxt("Unable to connect to " + n.ID + " : " + e.Error())
 		}
 		//return toolkit.NewResult().SetErrorTxt(n.formatError("RPC Client is not yet initialized"))
 	}

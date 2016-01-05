@@ -13,7 +13,7 @@ var (
 	userID       = "admin"
 	password     = "admin"
 	userSecret   = ""
-	masterUrl    = "localhost:12345"
+	masterUrl    = "localhost:6789"
 
 	coordinator *sebar.Coordinator
 	nodes       []*sebar.Node
@@ -23,6 +23,7 @@ var (
 func TestMaster(t *testing.T) {
 	coordinator = sebar.NewServer(sebar.RoleCoordinator, masterUrl).(*sebar.Coordinator)
 	coordinator.AddUser(userID, password)
+	coordinator.AllowMultiLogin = true
 	e := coordinator.Start()
 	if e != nil {
 		t.Error(e)
@@ -30,9 +31,9 @@ func TestMaster(t *testing.T) {
 }
 
 func TestStorageNode(t *testing.T) {
-	var storage *sebar.Storage
 	for i := 0; i < 5; i++ {
-		storage = sebar.NewServer(sebar.RoleStorage, fmt.Sprintf(":%d", 9601+i)).(*sebar.Storage)
+		var storage *sebar.Storage
+		storage = sebar.NewServer(sebar.RoleStorage, fmt.Sprintf("localhost:%d", 9601+i)).(*sebar.Storage)
 		storage.Coordinator = coordinator.Address
 		storage.CoordinatorUserID = userID
 		storage.CoordinatorSecret = password

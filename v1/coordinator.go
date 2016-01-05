@@ -43,7 +43,6 @@ func (c *Coordinator) RequestJoin(in toolkit.M) *toolkit.Result {
 func (c *Coordinator) Start() error {
 	errorPrefix := "Starting coordinator server fail: "
 	c.SebarServer.Server.RegisterRPCFunctions(c)
-
 	c.SebarServer.Server.Fn("requestjoin").AuthType = ""
 
 	e := c.SebarServer.Start()
@@ -60,6 +59,7 @@ func (c *Coordinator) Stop() error {
 
 	for _, nodes := range c.nodes {
 		for _, node := range nodes {
+			//toolkit.Println("Calling stopserver from node " + node.ID)
 			r := node.Call("stopserver", nil)
 			if r.Status != toolkit.Status_OK {
 				es = append(es, "["+node.ID+"] "+r.Message)

@@ -16,7 +16,8 @@ type IServer interface {
 
 type SebarServer struct {
 	appserver.Server
-	Address, Secret   string
+	//Address,
+	//Secret   string
 	Coordinator       string
 	CoordinatorUserID string
 	CoordinatorSecret string
@@ -50,6 +51,8 @@ func (s *SebarServer) Start() error {
 		nodeCoordinator := new(Node)
 		nodeCoordinator.Role = RoleCoordinator
 		nodeCoordinator.ID = s.Coordinator
+		nodeCoordinator.UserID = s.CoordinatorUserID
+		nodeCoordinator.Secret = s.CoordinatorSecret
 		s.AddNode(s.Coordinator, nodeCoordinator)
 
 		rjoin := nodeCoordinator.Call("requestjoin", toolkit.M{}.
@@ -64,9 +67,9 @@ func (s *SebarServer) Start() error {
 
 		mnode := toolkit.M{}
 		rjoin.GetFromBytes(&mnode)
-		s.Secret = mnode.GetString("secret")
+		//s.Secret = mnode.GetString("secret")
 		nodeCoordinator.UserID = mnode.GetString("referenceid")
-		nodeCoordinator.Secret = s.Secret
+		nodeCoordinator.Secret = mnode.GetString("secret")
 	}
 
 	s.Server.Log.Info("Starting server " + s.Address + " [" + string(s.Role) + "]")
@@ -88,17 +91,20 @@ func (s *SebarServer) AddNode(id string, node *Node) error {
 		return errors.New("Node Role for " + node.ID + " is empty")
 	}
 
-	if node.clientRpc == nil {
-		e := node.InitRPC()
-		if e != nil {
-			return errors.New("Unable to initialize RPC for Node " + node.ID + ": " + e.Error())
+	/*
+		if node.clientRpc == nil {
+			e := node.InitRPC()
+			if e != nil {
+				return errors.New("Unable to initialize RPC for Node " + node.ID + ": " + e.Error())
+			}
 		}
-	}
+	*/
 
 	s.initNodes()
 	nodes := s.initNodeType(string(node.Role))
 	nodes[id] = node
 	s.nodes[string(node.Role)] = nodes
+	s.Log.Info("Regitering node " + node.ID + " as [" + string(node.Role) + "] to " + s.Address)
 	return nil
 }
 
