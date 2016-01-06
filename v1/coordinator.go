@@ -30,7 +30,7 @@ func (c *Coordinator) RequestJoin(in toolkit.M) *toolkit.Result {
 	node.UserID = referenceID
 	node.Secret = secret
 	//node.InitRPC()
-	e = c.AddNode(node.ID, node)
+	e = c.AddNode(node)
 	if e != nil {
 		r.SetErrorTxt(e.Error())
 	}

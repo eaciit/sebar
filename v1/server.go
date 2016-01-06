@@ -23,7 +23,8 @@ type SebarServer struct {
 	CoordinatorSecret string
 	Role              NodeRoleEnum
 
-	nodes map[string]map[string]*Node
+	nodes map[string]map[int]*Node
+	//nodeIdxs map[string]map[int]*Node
 	//_rpcAddress string
 	//_urlAddress string
 }
@@ -53,7 +54,7 @@ func (s *SebarServer) Start() error {
 		nodeCoordinator.ID = s.Coordinator
 		nodeCoordinator.UserID = s.CoordinatorUserID
 		nodeCoordinator.Secret = s.CoordinatorSecret
-		s.AddNode(s.Coordinator, nodeCoordinator)
+		s.AddNode(nodeCoordinator)
 
 		rjoin := nodeCoordinator.Call("requestjoin", toolkit.M{}.
 			Set("auth_referenceid", s.CoordinatorUserID).
@@ -81,7 +82,7 @@ func (s *SebarServer) Stop() error {
 	return nil
 }
 
-func (s *SebarServer) AddNode(id string, node *Node) error {
+func (s *SebarServer) AddNode(node *Node) error {
 	//--- validate node
 	if node.ID == "" {
 		return errors.New("Node ID is empty")
@@ -102,7 +103,14 @@ func (s *SebarServer) AddNode(id string, node *Node) error {
 
 	s.initNodes()
 	nodes := s.initNodeType(string(node.Role))
-	nodes[id] = node
+
+	for _, v := range nodes {
+		if v.ID == node.ID {
+			return errors.New("Add Node fail. Node " + node.ID + " already exist")
+		}
+	}
+
+	nodes[len(nodes)] = node
 	s.nodes[string(node.Role)] = nodes
 	s.Log.Info("Regitering node " + node.ID + " as [" + string(node.Role) + "] to " + s.Address)
 	return nil
@@ -110,19 +118,19 @@ func (s *SebarServer) AddNode(id string, node *Node) error {
 
 func (s *SebarServer) initNodes() {
 	if s.nodes == nil {
-		s.nodes = map[string]map[string]*Node{}
+		s.nodes = map[string]map[int]*Node{}
 	}
 }
 
-func (s *SebarServer) initNodeType(nodeTypeName string) map[string]*Node {
+func (s *SebarServer) initNodeType(nodeTypeName string) map[int]*Node {
 	nodes, nodesExist := s.nodes[nodeTypeName]
 	if !nodesExist {
-		nodes = map[string]*Node{}
+		nodes = map[int]*Node{}
 	}
 	return nodes
 }
 
-func (s *SebarServer) Node(id string) *Node {
+func (s *SebarServer) NodeByID(id string) *Node {
 	s.initNodes()
 	for _, nodes := range s.nodes {
 		for _, node := range nodes {
@@ -140,9 +148,9 @@ func (s *SebarServer) RemoveNode(id string) {
 	}
 	//delete(s.nodes, id)
 	for nodeTypeName, nodes := range s.nodes {
-		for _, node := range nodes {
+		for k, node := range nodes {
 			if node.ID == id {
-				delete(nodes, id)
+				delete(nodes, k)
 				s.nodes[nodeTypeName] = nodes
 				return
 			}
@@ -150,8 +158,25 @@ func (s *SebarServer) RemoveNode(id string) {
 	}
 }
 
+func (s *SebarServer) Node(role NodeRoleEnum, key int) *Node {
+	s.initNodes()
+	s.initNodeType(string(role))
+
+	n := s.nodes[string(role)][key]
+	return n
+}
+
+func (s *SebarServer) Nodes(role NodeRoleEnum) map[int]*Node {
+	s.initNodes()
+	nodes := s.nodes[string(role)]
+	if nodes == nil {
+		return map[int]*Node{}
+	}
+	return nodes
+}
+
 /*
-func (s *SebarServer) SetURL(rawurl string) *SebarServer {
+func (s *SebarServer) SetURL(rawurl tring) *SebarServer {
 	u, e := url.Parse(rawurl)
 	if e != nil {
 		return s
