@@ -79,7 +79,7 @@ func TestStorageWrite(t *testing.T) {
 
 		in := toolkit.M{}.Set("key", fmt.Sprintf("public.dataku.%d", i)).Set("data", dataku)
 		//.Set("encode", false).Set("encoderid", "")
-		writeResult := client.Call("write", in)
+		writeResult := client.Call("set", in)
 		if writeResult.Status != toolkit.Status_OK {
 			es = append(es, toolkit.Sprintf("Fail to write data %d : %d => %s", i, dataku, writeResult.Message))
 		}

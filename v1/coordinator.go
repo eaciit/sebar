@@ -187,5 +187,4 @@ func (m *Coordinator) Write(k *knot.WebContext) interface{} {
 func (m *Coordinator) Read(k *knot.WebContext) interface{} {
 	result := toolkit.NewResult()
 	return result
-}
 */

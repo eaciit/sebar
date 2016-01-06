@@ -1,7 +1,7 @@
 package sebar
 
 import (
-	"strings"
+//"strings"
 )
 
 func NewServer(role NodeRoleEnum, url string) IServer {
@@ -26,6 +26,7 @@ func MakeUrl(serverUrl, role, method string) string {
 	return serverUrl + "/" + role + "/" + method
 }
 
+/*
 func ParseKey(userid string, key string) (string, string, string) {
 	keys := strings.Split(key, ":")
 	owner := "public"
@@ -44,3 +45,4 @@ func ParseKey(userid string, key string) (string, string, string) {
 	}
 	return owner, table, datakey
 }
+*/

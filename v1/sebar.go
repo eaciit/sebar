@@ -1,7 +1,7 @@
 package sebar
 
 import (
-	"github.com/eaciit/knot/knot.v1"
+//"github.com/eaciit/knot/knot.v1"
 )
 
 type NodeRoleEnum string
@@ -19,7 +19,9 @@ const (
 )
 
 func init() {
-	app := knot.NewApp("sebar-rest")
-	app.DefaultOutputType = knot.OutputJson
-	knot.RegisterApp(app)
+	/*
+		app := knot.NewApp("sebar-rest")
+		app.DefaultOutputType = knot.OutputJson
+		knot.RegisterApp(app)
+	*/
 }
