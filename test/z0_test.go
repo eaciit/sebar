@@ -2,8 +2,9 @@ package sebar_test
 
 import (
 	//"github.com/eaciit/sebar/client.v1"
-	"github.com/eaciit/appserver/v1"
 	"github.com/eaciit/crowd"
+	"github.com/eaciit/pecel/v1/client"
+	//"github.com/eaciit/pecel/v1/server"
 	"github.com/eaciit/sebar/v1"
 	"github.com/eaciit/toolkit"
 	//"strconv"
@@ -24,7 +25,7 @@ var (
 	nodes       []*sebar.Node
 	session     *sebar.Session
 
-	client *appserver.Client
+	client *pecelclient.Client
 )
 
 func TestMaster(t *testing.T) {
@@ -58,7 +59,7 @@ func skipIfClientNil(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-	client = new(appserver.Client)
+	client = new(pecelclient.Client)
 	e := client.Connect(coordinator.Address, password, userID)
 	if e != nil {
 		t.Error(e.Error())

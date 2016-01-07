@@ -2,7 +2,6 @@ package sebar
 
 import (
 	"errors"
-
 	"github.com/eaciit/toolkit"
 )
 
@@ -22,6 +21,12 @@ type Storage struct {
 func (s *Storage) StopServer(in toolkit.M) *toolkit.Result {
 	r := toolkit.NewResult()
 	s.SebarServer.Stop()
+	return r
+}
+
+func (s *Storage) Write(in toolkit.M) *toolkit.Result {
+	r := toolkit.NewResult()
+	r.SetErrorTxt("Storage.Write is not yet implemented")
 	return r
 }
 

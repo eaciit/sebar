@@ -3,7 +3,7 @@ package sebar
 import (
 	//"errors"
 	"fmt"
-	"github.com/eaciit/appserver/v1"
+	"github.com/eaciit/pecel/v1/client"
 	"github.com/eaciit/toolkit"
 	"strings"
 )
@@ -17,7 +17,7 @@ type Node struct {
 	UserID string
 	Secret string
 
-	clientRpc *appserver.Client
+	clientRpc *pecelclient.Client
 }
 
 func (n *Node) formatError(pattern string, others ...interface{}) string {
@@ -29,8 +29,8 @@ func (n *Node) formatError(pattern string, others ...interface{}) string {
 
 func (n *Node) Call(methodName string, in toolkit.M) *toolkit.Result {
 	if n.clientRpc == nil {
-		n.clientRpc = new(appserver.Client)
-		e := n.clientRpc.Connect(n.ID, n.UserID, n.Secret)
+		n.clientRpc = new(pecelclient.Client)
+		e := n.clientRpc.Connect(n.ID, n.Secret, n.UserID)
 		if e != nil {
 			n.clientRpc.Close()
 			n.clientRpc = nil
@@ -47,7 +47,7 @@ func (n *Node) Call(methodName string, in toolkit.M) *toolkit.Result {
 func (n *Node) InitRPC() error {
 	/*
 		var e error
-		n.clientRpc = new(appserver.Client)
+		n.clientRpc = new(pecelclient.Client)
 		e = n.clientRpc.Connect(n.ID, n.UserID, n.Secret)
 		if e != nil {
 			n.clientRpc.Close()

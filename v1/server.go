@@ -2,8 +2,8 @@ package sebar
 
 import (
 	"errors"
-	"github.com/eaciit/appserver/v1"
-
+	//"github.com/eaciit/pecel/v1/client"
+	"github.com/eaciit/pecel/v1/server"
 	"github.com/eaciit/toolkit"
 	//"net/rpc"
 )
@@ -15,7 +15,7 @@ type IServer interface {
 }
 
 type SebarServer struct {
-	appserver.Server
+	pecelserver.Server
 	//Address,
 	//Secret   string
 	Coordinator       string
