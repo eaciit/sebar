@@ -71,3 +71,11 @@ func getAvailableNode(o interface{}) (int, error) {
 	return 0, errors.New("Coordinator.getAvailableNode: No node is available to receive data")
 	return 0, nil
 }
+
+func (c *Coordinator) UpdateMetadata(in toolkit.M) *toolkit.Result {
+	result := toolkit.NewResult()
+	keys := []string{}
+	bs := in.Get("keys", []byte{}).([]byte)
+	toolkit.FromBytes(bs, "gob", &keys)
+	return result
+}
