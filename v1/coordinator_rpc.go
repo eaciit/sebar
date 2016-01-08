@@ -52,7 +52,7 @@ func (c *Coordinator) Set(in toolkit.M) *toolkit.Result {
 
 	nodeIdx, e := c.getAvailableNode(data)
 	if e != nil {
-		result.SetErrorTxt("Coordinator.Set: " + e.Error())
+		return result.SetErrorTxt("Coordinator.Set: " + e.Error())
 	}
 	node := c.Node(RoleStorage, nodeIdx)
 
