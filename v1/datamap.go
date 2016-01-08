@@ -46,29 +46,3 @@ func (c *Coordinator) findOrCreateMap(key string, maps map[string]*DataMap, crea
 	}
 	return
 }
-
-/*
-func (c *Coordinator) findMap(key string, maps map[string]*DataMap, prevKey string) (dm *DataMap, node *Node, e error) {
-	keys := strings.Split(key, ".")
-	if len(keys) == 0 || key == "" {
-		return nil, nil, errors.New("No data found with ID: " + prevKey + "." + key)
-	}
-
-	prevKey = prevKey + "." + keys[0]
-	dm, exist := maps[keys[0]]
-	if !exist {
-		return nil, nil, errors.New("No data found with ID: " + prevKey)
-	}
-
-	if dm.IsDataPoint == false {
-		return c.findMap(strings.Join(keys[1:], "."), dm.Maps, prevKey)
-	}
-
-	node = c.Node(RoleStorage, dm.Node)
-	if node == nil {
-		return dm, nil, errors.New("Node could not be found for ID: " + prevKey)
-	}
-
-	return
-}
-*/
