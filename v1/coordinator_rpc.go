@@ -37,11 +37,20 @@ func (c *Coordinator) Set(in toolkit.M) *toolkit.Result {
 	if in == nil {
 		in = toolkit.M{}
 	}
-	//key := in.GetString("key")
-	//owner, table, datakey := ParseKey(key)
 	result := toolkit.NewResult()
 
-	nodeIdx, e := getAvailableNode(in.Get("data"))
+	key := in.GetString("key")
+
+	if key == "" {
+		return result.SetErrorTxt("Key is empty")
+	}
+
+	data := toolkit.ToBytes(in.Get("data"), "")
+	if len(data) == 0 {
+		return result.SetErrorTxt("Data is not valid")
+	}
+
+	nodeIdx, e := c.getAvailableNode(data)
 	if e != nil {
 		result.SetErrorTxt("Coordinator.Set: " + e.Error())
 	}
@@ -67,9 +76,30 @@ func (c *Coordinator) Get(in toolkit.M) *toolkit.Result {
 	return result
 }
 
-func getAvailableNode(o interface{}) (int, error) {
-	return 0, errors.New("Coordinator.getAvailableNode: No node is available to receive data")
-	return 0, nil
+func (c *Coordinator) getAvailableNode(data []byte) (nodeIndex int, e error) {
+	var currentMax int
+	found := false
+	dataLength := float64(len(data))
+	dataLengthInt := len(data)
+	nodes := c.Nodes(RoleStorage)
+	for k, n := range nodes {
+		resultAvail := n.Call("status", toolkit.M{}.Set("size", dataLengthInt))
+		if resultAvail.Status == toolkit.Status_OK {
+			m := toolkit.M{}
+			resultAvail.GetFromBytes(&m)
+			nodeAvailableSize := m.GetInt("available")
+			if nodeAvailableSize > dataLengthInt && nodeAvailableSize > currentMax {
+				found = true
+				currentMax = nodeAvailableSize
+				nodeIndex = k
+			}
+		}
+	}
+
+	if !found {
+		e = errors.New(toolkit.Sprintf("No node available to hosts %s bytes of data", ParseSize(dataLength)))
+	}
+	return
 }
 
 func (c *Coordinator) UpdateMetadata(in toolkit.M) *toolkit.Result {

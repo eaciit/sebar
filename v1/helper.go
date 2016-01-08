@@ -1,7 +1,7 @@
 package sebar
 
 import (
-//"strings"
+	"github.com/eaciit/toolkit"
 )
 
 func NewServer(role NodeRoleEnum, url string) IServer {
@@ -24,25 +24,40 @@ func NewServer(role NodeRoleEnum, url string) IServer {
 
 func MakeUrl(serverUrl, role, method string) string {
 	return serverUrl + "/" + role + "/" + method
+
 }
 
-/*
-func ParseKey(userid string, key string) (string, string, string) {
-	keys := strings.Split(key, ":")
-	owner := "public"
-	table := "common"
-	datakey := ""
+func ParseSize(size float64) string {
+	return doParseSize(size, "")
+}
 
-	if len(keys) >= 3 {
-		owner = keys[0]
-		table = keys[1]
-		datakey = keys[2]
-	} else if len(keys) == 2 {
-		table = keys[0]
-		datakey = keys[1]
-	} else {
-		datakey = keys[0]
+func doParseSize(size float64, unit string) string {
+	if unit == "" {
+		unit = "B"
 	}
-	return owner, table, datakey
+	ret := ""
+	if size > 1024 {
+		size = size / 1024
+		if unit == "B" {
+			unit = "K"
+		} else if unit == "K" {
+			unit = "M"
+		} else if unit == "M" {
+			unit = "G"
+		} else if unit == "G" {
+			unit = "T"
+		} else {
+			unit = "P"
+		}
+
+		if unit != "P" {
+			ret = doParseSize(size, unit)
+		} else {
+			ret = toolkit.Sprintf("%2.2f%s", size, unit)
+		}
+	} else {
+
+		ret = toolkit.Sprintf("%2.2f%s", size, unit)
+	}
+	return ret
 }
-*/
