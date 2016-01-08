@@ -11,7 +11,8 @@ import (
 type Coordinator struct {
 	SebarServer
 
-	sessions map[string]*usersession
+	sessions  map[string]*usersession
+	metadatas map[string]*DataMap
 }
 
 func (c *Coordinator) RequestJoin(in toolkit.M) *toolkit.Result {
@@ -46,6 +47,7 @@ func (c *Coordinator) Start() error {
 	c.SebarServer.Server.Fn("requestjoin").AuthType = ""
 
 	e := c.SebarServer.Start()
+	c.metadatas = map[string]*DataMap{}
 	if e != nil {
 		return errors.New(errorPrefix + e.Error())
 	}

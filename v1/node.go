@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/eaciit/pecel/v1/client"
 	"github.com/eaciit/toolkit"
-	"strings"
+	//"strings"
 )
 
 type INode interface {
@@ -39,7 +39,6 @@ func (n *Node) Call(methodName string, in toolkit.M) *toolkit.Result {
 		//return toolkit.NewResult().SetErrorTxt(n.formatError("RPC Client is not yet initialized"))
 	}
 
-	methodName = strings.ToLower(methodName)
 	r := n.clientRpc.Call(methodName, in)
 	return r
 }
