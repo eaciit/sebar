@@ -58,6 +58,7 @@ func (c *Coordinator) Set(in toolkit.M) *toolkit.Result {
 
 	delete(in, "auth_referenceid")
 	delete(in, "auth_secret")
+	in.Set("data", data)
 	rw := node.Call("write", in)
 	result.Data = rw.Data
 	result.Status = rw.Status

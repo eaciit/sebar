@@ -3,6 +3,8 @@ package sebar
 import (
 	"errors"
 	"github.com/eaciit/toolkit"
+	"sync"
+	"time"
 )
 
 type StorageTypeEnum string
@@ -46,12 +48,35 @@ type StorageInfo struct {
 }
 
 type StorageMedia struct {
+	sync.Mutex
 	StorageInfo
 	datas map[string]*DataPoint
 }
 
-func (m *StorageMedia) Available() float64 {
+func (m *StorageInfo) Available() float64 {
 	return m.AllocatedSize - m.Usage
+}
+
+func (m *StorageMedia) write(key string, data []byte) error {
+	size := float64(len(data))
+	if m.Active == false {
+		return errors.New("Storage media is not active")
+	}
+
+	if m.Available() < size {
+		return errors.New("Available size is not enough")
+	}
+
+	m.Lock()
+	m.Usage += size
+	m.datas[key] = &DataPoint{
+		ID:      key,
+		Value:   data,
+		Created: time.Now(),
+	}
+	m.datas[key].setExpiry(0)
+	m.Unlock()
+	return nil
 }
 
 func NewStorageMedia(size float64) *StorageMedia {
@@ -89,7 +114,11 @@ func (s *Storage) StorageStatus(in toolkit.M) *toolkit.Result {
 
 func (s *Storage) Write(in toolkit.M) *toolkit.Result {
 	r := toolkit.NewResult()
-	r.SetErrorTxt("Storage.Write is not yet implemented")
+	key := in.Get("key")
+	dataToWrite := in.Get("data").([]byte)
+	dataLen := len(dataToWrite)
+	s.Log.Info(toolkit.Sprintf("Writing %s (%s) to node %s", key, ParseSize(float64(dataLen)), s.Address))
+	//r.SetErrorTxt("Storage.Write is not yet implemented")
 	return r
 }
 
