@@ -77,18 +77,21 @@ func (c *Coordinator) Get(in toolkit.M) *toolkit.Result {
 }
 
 func (c *Coordinator) getAvailableNode(data []byte) (nodeIndex int, e error) {
-	var currentMax int
+	var currentMax float64
 	found := false
 	dataLength := float64(len(data))
-	dataLengthInt := len(data)
 	nodes := c.Nodes(RoleStorage)
 	for k, n := range nodes {
-		resultAvail := n.Call("status", toolkit.M{}.Set("size", dataLengthInt))
+		resultAvail := n.Call("storagestatus", nil)
 		if resultAvail.Status == toolkit.Status_OK {
-			m := toolkit.M{}
-			resultAvail.GetFromBytes(&m)
-			nodeAvailableSize := m.GetInt("available")
-			if nodeAvailableSize > dataLengthInt && nodeAvailableSize > currentMax {
+			//m := toolkit.M{}
+			sm := struct {
+				Memory   *StorageMedia
+				Physical *StorageMedia
+			}{}
+			resultAvail.GetFromBytes(&sm)
+			nodeAvailableSize := sm.Memory.Available()
+			if nodeAvailableSize > dataLength && nodeAvailableSize > currentMax {
 				found = true
 				currentMax = nodeAvailableSize
 				nodeIndex = k
