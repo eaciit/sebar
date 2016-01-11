@@ -57,7 +57,7 @@ func (m *StorageInfo) Available() float64 {
 	return m.AllocatedSize - m.Usage
 }
 
-func (m *StorageMedia) write(key string, data []byte) error {
+func (m *StorageMedia) write(key string, data []byte, coordinator *Node) error {
 	size := float64(len(data))
 	if m.Active == false {
 		return errors.New("Storage media is not active")
@@ -76,6 +76,13 @@ func (m *StorageMedia) write(key string, data []byte) error {
 	}
 	m.datas[key].setExpiry(0)
 	m.Unlock()
+
+	// Update metadata, if fail reset the data, if ok commit the change
+	rmetadata := coordinator.Call("writemetadata", toolkit.M{}.Set("key", key))
+	if rmetadata.Status != toolkit.Status_OK {
+		return errors.New("Metadata update fail: " + rmetadata.Message)
+	}
+
 	return nil
 }
 
@@ -112,13 +119,27 @@ func (s *Storage) StorageStatus(in toolkit.M) *toolkit.Result {
 	return r
 }
 
+/*
+Write Write bytes of data into sebar storage.
+- Data need to be defined as []byte on in["data"]
+- To use memory or disk should be defined on in["storage"] as: MEM, DSK (sebar.StorageTypeMemory, sebar.StorageTypeMemory)
+- If no in["storage"] or the value is not eq to either disk or memory, it will be defaulted to memory
+*/
 func (s *Storage) Write(in toolkit.M) *toolkit.Result {
 	r := toolkit.NewResult()
-	key := in.Get("key")
+	key := in.Get("key").(string)
 	dataToWrite := in.Get("data").([]byte)
 	dataLen := len(dataToWrite)
+
+	// Validation
+	nodeCoordinator := s.NodeByID(s.Coordinator)
+	if nodeCoordinator == nil {
+		return r.SetErrorTxt(s.Address + " no Coordinator has been setup")
+	}
+
+	// Since all is ok commit the change
+	s.MemoryStorage.write(key, dataToWrite, nodeCoordinator)
 	s.Log.Info(toolkit.Sprintf("Writing %s (%s) to node %s", key, ParseSize(float64(dataLen)), s.Address))
-	//r.SetErrorTxt("Storage.Write is not yet implemented")
 	return r
 }
 

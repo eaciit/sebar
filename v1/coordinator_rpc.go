@@ -41,26 +41,29 @@ func (c *Coordinator) Set(in toolkit.M) *toolkit.Result {
 
 	key := in.GetString("key")
 
+	// validation
 	if key == "" {
 		return result.SetErrorTxt("Key is empty")
 	}
 
-	//data := toolkit.ToBytes(in.Get("data"), "")
 	data := in.Get("data", []byte{}).([]byte)
 	if len(data) == 0 {
 		return result.SetErrorTxt("Data is not valid")
 	}
 
+	// get available node
 	nodeIdx, e := c.getAvailableNode(data)
 	if e != nil {
 		return result.SetErrorTxt("Coordinator.Set: " + e.Error())
 	}
 	node := c.Node(RoleStorage, nodeIdx)
 
+	// write the data
 	delete(in, "auth_referenceid")
 	delete(in, "auth_secret")
 	in.Set("data", data)
 	rw := node.Call("write", in)
+
 	result.Data = rw.Data
 	result.Status = rw.Status
 	if result.Status != toolkit.Status_OK {
