@@ -128,6 +128,10 @@ Write Write bytes of data into sebar storage.
 func (s *Storage) Write(in toolkit.M) *toolkit.Result {
 	r := toolkit.NewResult()
 	key := in.Get("key").(string)
+	storage := StorageTypeEnum(in.GetString("storage"))
+	if storage != StorageTypeMemory && storage != StorageTypeDisk {
+		storage = StorageTypeMemory
+	}
 	dataToWrite := in.Get("data").([]byte)
 	dataLen := len(dataToWrite)
 
@@ -138,7 +142,13 @@ func (s *Storage) Write(in toolkit.M) *toolkit.Result {
 	}
 
 	// Since all is ok commit the change
-	s.MemoryStorage.write(key, dataToWrite, nodeCoordinator)
+	var ms *StorageMedia
+	if storage == StorageTypeMemory {
+		ms = s.MemoryStorage
+	} else {
+		ms = s.DiskStorage
+	}
+	ms.write(key, dataToWrite, nodeCoordinator)
 	s.Log.Info(toolkit.Sprintf("Writing %s (%s) to node %s", key, ParseSize(float64(dataLen)), s.Address))
 	return r
 }
