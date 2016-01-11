@@ -45,7 +45,8 @@ func (c *Coordinator) Set(in toolkit.M) *toolkit.Result {
 		return result.SetErrorTxt("Key is empty")
 	}
 
-	data := toolkit.ToBytes(in.Get("data"), "")
+	//data := toolkit.ToBytes(in.Get("data"), "")
+	data := in.Get("data", []byte{}).([]byte)
 	if len(data) == 0 {
 		return result.SetErrorTxt("Data is not valid")
 	}
