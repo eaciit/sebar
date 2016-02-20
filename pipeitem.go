@@ -39,6 +39,7 @@ func (p *PipeItem) SetError(err string) error {
 
 func wgDone(wg *sync.WaitGroup) {
 	if wg != nil {
+		toolkit.Println("Done 1 elem of WaitGroup")
 		wg.Done()
 	}
 }
