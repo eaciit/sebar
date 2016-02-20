@@ -1,7 +1,8 @@
-package crowd
+package sebar
 
 import (
 	"errors"
+	"github.com/eaciit/crowd"
 	"github.com/eaciit/toolkit"
 	"reflect"
 	"sync"
@@ -17,7 +18,7 @@ const (
 )
 
 type Pipe struct {
-	c *Crowd
+	c *crowd.Crowd
 
 	Items []*PipeItem
 

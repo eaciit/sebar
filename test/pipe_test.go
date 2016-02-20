@@ -1,14 +1,14 @@
-package v05_test
+package v1dev_test
 
 import (
-	"github.com/eaciit/crowd"
+	"github.com/eaciit/sebar"
 	"github.com/eaciit/toolkit"
 	"testing"
 	"time"
 )
 
 var dataCount int = 200
-var pipe *crowd.Pipe
+var pipe *sebar.Pipe
 var dataPipe []int
 var outs []int
 
@@ -28,8 +28,8 @@ func TestPrepareData(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
-	ds := new(crowd.PipeSource).SetData(&dataPipe)
-	pipe1 := new(crowd.Pipe).From(ds).SetOutput(&outs)
+	ds := new(sebar.PipeSource).SetData(&dataPipe)
+	pipe1 := new(sebar.Pipe).From(ds).SetOutput(&outs)
 	e := pipe1.Exec(nil)
 	if e != nil {
 		t.Fatalf("Error load: " + e.Error())
@@ -51,7 +51,7 @@ func TestWhereMap(t *testing.T) {
 		X int
 		Y int
 	}
-	pipe1 := new(crowd.Pipe).From(new(crowd.PipeSource).SetData(&dataPipe))
+	pipe1 := new(sebar.Pipe).From(new(sebar.PipeSource).SetData(&dataPipe))
 	pipe1.Where(func(x int) bool {
 		return x <= 300
 	})
@@ -95,7 +95,7 @@ func TestWhereMapReduce(t *testing.T) {
 	var total1, total2 int
 	var ints []int
 
-	pipe1 := new(crowd.Pipe).From(new(crowd.PipeSource).SetData(&dataPipe))
+	pipe1 := new(sebar.Pipe).From(new(sebar.PipeSource).SetData(&dataPipe))
 	pipe1.Where(func(x int) bool {
 		return x <= 300
 	}).Map(func(x int) xy {
@@ -134,7 +134,7 @@ func TestWhereMapReducePartition(t *testing.T) {
 	var total1, total2 int
 	var ints []int
 
-	pipe1 := new(crowd.Pipe).From(new(crowd.PipeSource).SetData(&dataPipe))
+	pipe1 := new(sebar.Pipe).From(new(sebar.PipeSource).SetData(&dataPipe))
 	pipe1.Parallel(5).Where(func(x int) bool {
 		return x <= 300
 	}).Map(func(x int) xy {
@@ -173,15 +173,15 @@ func TestWhereMapReducePartition(t *testing.T) {
 /*
 func TestPipe(t *testing.T) {
 	t.Skip()
-	pipe1 := new(crowd.Pipe).From(nil).Map(func(x int) DataOut {
+	pipe1 := new(sebar.Pipe).From(nil).Map(func(x int) DataOut {
 		return DataOut{x / 100, x}
 	}).Sort(func(x DataOut) int {
 		return x.Group
 	})
 
-	pipe2 := new(crowd.Pipe).From(nil)
+	pipe2 := new(sebar.Pipe).From(nil)
 
-	pipe3 := new(crowd.Pipe).Join(pipe1, pipe3, func(x DataOut, y int) bool {
+	pipe3 := new(sebar.Pipe).Join(pipe1, pipe3, func(x DataOut, y int) bool {
 		return x.Group == y
 	}, func(x DataOut, y int) DataOut {
 		return x.Group
