@@ -225,7 +225,7 @@ func (p *PipeItem) Run(dataRun toolkit.M) error {
 		p.nextItem.allKeysHasBeenSent = p.allKeysHasBeenSent
 		p.nextItem.Set("parm", parm)
 		p.nextItem.Set("in", iouts)
-		return p.nextItem.Run()
+		return p.nextItem.Run(nil)
 	} else {
 		if wg != nil {
 			wg.Done()
