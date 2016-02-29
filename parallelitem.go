@@ -3,6 +3,7 @@ package sebar
 import (
 	"errors"
 	"fmt"
+	"github.com/eaciit/toolkit"
 	"sync"
 	"time"
 )
@@ -132,12 +133,14 @@ func (pm *ParallelManager) Wait() (e error) {
 			//fmt.Println("Processing key ", k)
 			pm.Lock()
 			pm.keys[maxIndex] = pm.keys[maxIndex][:len(keys)-1]
-
+			var wg *sync.WaitGroup
+			wg = pm.parm.(toolkit.M).Get("wg", wg).(*sync.WaitGroup)
 			go func() {
 				pm.items[maxIndex].Set("parm", pm.parm)
 				pm.items[maxIndex].Set("in", k)
 				erun := pm.items[maxIndex].Run()
 				if erun != nil {
+					wgDone(wg)
 					fmt.Println("Error", erun.Error())
 				} else {
 					//fmt.Print("Run")

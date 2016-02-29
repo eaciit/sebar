@@ -89,15 +89,18 @@ func (p *Pipe) Exec(parm toolkit.M) error {
 	p.waitGroup = new(sync.WaitGroup)
 	sLen := p.source.Len()
 	for sIndex := 0; sIndex < sLen; sIndex++ {
-		parm.Set("dataindex", sIndex)
+		dataRun := toolkit.M{}
+		dataRun.Set("dataindex", sIndex)
 		parm.Set("wg", p.waitGroup)
 		p.Items[0].Set("parm", parm)
-		p.Items[0].Set("in", p.source.Seek(sIndex, SeekFromStart))
+		//p.Items[0].Set("in", p.source.Seek(sIndex, SeekFromStart))
+
+		dataRun.Set("data", p.source.Seek(sIndex, SeekFromStart))
 		if sIndex == sLen-1 {
 			p.Items[0].allKeysHasBeenSent = true
 		}
 		p.waitGroup.Add(1)
-		erun := p.Items[0].Run()
+		erun := p.Items[0].Run(dataRun)
 		if erun != nil {
 			//p.waitGroup.Done()
 			return errors.New("Pipe.Exec: " + erun.Error())

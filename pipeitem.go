@@ -5,9 +5,11 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"time"
 )
 
 type PipeItem struct {
+	sync.Mutex
 	attributes         toolkit.M
 	nextItem           *PipeItem
 	noParralelism      bool
@@ -15,6 +17,8 @@ type PipeItem struct {
 
 	parallelManager *ParallelManager
 	reduceTemp      interface{}
+	waiting         bool
+	wg              *sync.WaitGroup
 }
 
 func (p *PipeItem) initAttributes() {
@@ -37,14 +41,68 @@ func (p *PipeItem) SetError(err string) error {
 	return nil
 }
 
+func (p *PipeItem) Wait() error {
+	//--- one wait should only run once
+	if p.waiting {
+		return nil
+	}
+
+	//--- tell that waiting has been done
+	defer func() {
+		p.Lock()
+		p.waiting = false
+		p.Unlock()
+	}()
+
+	for {
+		if p.allKeysHasBeenSent {
+			break
+		} else {
+			time.Sleep(p.Get("waitduration", 1*time.Second).(time.Duration))
+		}
+	}
+
+	if p.wg != nil {
+		p.wg.Wait()
+	}
+	return nil
+}
+
+func (p *PipeItem) addKey(k interface{}) {
+	if p.wg == nil {
+		p.wg = new(sync.WaitGroup)
+	}
+
+	p.wg.Add(1)
+	p.execute(k)
+}
+
 func wgDone(wg *sync.WaitGroup) {
 	if wg != nil {
-		toolkit.Println("Done 1 elem of WaitGroup")
+		//toolkit.Println("Done 1 elem of WaitGroup")
 		wg.Done()
 	}
 }
 
-func (p *PipeItem) Run() error {
+func (p *PipeItem) execute(k interface{}) {
+	defer p.wg.Done()
+
+	var nextIn interface{}
+	nextIn = k
+	p.sendToNext(nextIn)
+	return
+}
+
+func (p *PipeItem) sendToNext(in interface{}) {
+	if p.nextItem == nil {
+		return
+	} else {
+		p.nextItem.Set("parm", p.Get("parm", nil))
+		p.nextItem.addKey(in)
+	}
+}
+
+func (p *PipeItem) Run(dataRun toolkit.M) error {
 	op := strings.ToLower(p.Get("op", "").(string))
 	parm := p.Get("parm", toolkit.M{}).(toolkit.M)
 	verbose := parm.Get("verbose", false).(bool)
@@ -72,6 +130,7 @@ func (p *PipeItem) Run() error {
 				p.parallelManager.parm = parm
 				p.parallelManager.Wait()
 			}
+
 			p.parallelManager.SendKey(pIn)
 			p.parallelManager.allKeysHasBeenSent = p.allKeysHasBeenSent
 			return nil
