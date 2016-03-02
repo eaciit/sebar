@@ -17,7 +17,7 @@ type IPipeSource interface {
 	CurrentPos() int
 	Len() int
 	First() interface{}
-	Next() interface{}
+	Next() (interface{}, bool)
 	Seek(int, SeekFromEnum) interface{}
 }
 
@@ -65,12 +65,12 @@ func (p *PipeSource) First() interface{} {
 	return toolkit.SliceItem(p.data, 0)
 }
 
-func (p *PipeSource) Next() interface{} {
+func (p *PipeSource) Next() (interface{}, bool) {
 	if p.currentPos >= p.Len()-1 {
-		return nil
+		return nil, false
 	}
 	p.currentPos++
-	return toolkit.SliceItem(p.data, p.currentPos)
+	return toolkit.SliceItem(p.data, p.currentPos), true
 }
 
 func (p *PipeSource) Seek(index int, seekFrom SeekFromEnum) interface{} {

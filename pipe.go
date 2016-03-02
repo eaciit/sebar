@@ -86,29 +86,25 @@ func (p *Pipe) Exec(parm toolkit.M) error {
 		parm = toolkit.M{}
 	}
 
-	p.waitGroup = new(sync.WaitGroup)
-	sLen := p.source.Len()
-	for sIndex := 0; sIndex < sLen; sIndex++ {
-		dataRun := toolkit.M{}
-		dataRun.Set("dataindex", sIndex)
-		parm.Set("wg", p.waitGroup)
-		p.Items[0].Set("parm", parm)
-		//p.Items[0].Set("in", p.source.Seek(sIndex, SeekFromStart))
-
-		dataRun.Set("data", p.source.Seek(sIndex, SeekFromStart))
-		if sIndex == sLen-1 {
-			p.Items[0].allKeysHasBeenSent = true
-		}
-		p.waitGroup.Add(1)
-		erun := p.Items[0].Run(dataRun)
-		if erun != nil {
-			//p.waitGroup.Done()
-			return errors.New("Pipe.Exec: " + erun.Error())
+	p.Items[0].Set("parm", parm)
+	running := true
+	dataIndex := -1
+	p.source.First()
+	for running {
+		dataItem, hasData := p.source.Next()
+		if hasData {
+			dataIndex++
+			dataRun := toolkit.M{}
+			dataRun.Set("data", dataItem)
+			dataRun.Set("dataindex", dataIndex)
+			erun := p.Items[0].Run(dataRun)
+			if erun != nil {
+				return errors.New("Pipe Exec: " + erun.Error())
+			}
 		} else {
-			//toolkit.Println("Executed")
+			running = false
 		}
 	}
-
 	return nil
 }
 
