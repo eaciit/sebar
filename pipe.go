@@ -94,15 +94,7 @@ func (p *Pipe) Exec(parm toolkit.M) error {
 		dataItem, hasData := p.source.Next()
 		if hasData {
 			dataIndex++
-			dataRun := toolkit.M{}
-			dataRun.Set("data", dataItem)
-			dataRun.Set("dataindex", dataIndex)
-			erun := p.Items[0].Run(dataRun)
-			if erun != nil {
-				return errors.New("Pipe Exec: " + erun.Error())
-			}
-		} else {
-			running = false
+			p.Items[0].send(dataItem)
 		}
 	}
 	return nil

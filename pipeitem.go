@@ -68,7 +68,7 @@ func (p *PipeItem) Wait() error {
 	return nil
 }
 
-func (p *PipeItem) addKey(k interface{}) {
+func (p *PipeItem) send(k interface{}) {
 	if p.wg == nil {
 		p.wg = new(sync.WaitGroup)
 	}
@@ -98,7 +98,7 @@ func (p *PipeItem) sendToNext(in interface{}) {
 		return
 	} else {
 		p.nextItem.Set("parm", p.Get("parm", nil))
-		p.nextItem.addKey(in)
+		p.nextItem.send(in)
 	}
 }
 
