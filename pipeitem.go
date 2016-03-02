@@ -102,7 +102,7 @@ func (p *PipeItem) sendToNext(in interface{}) {
 	}
 }
 
-func (p *PipeItem) Run(dataRun toolkit.M) error {
+func (p *PipeItem) _Run(dataRun toolkit.M) error {
 	op := strings.ToLower(p.Get("op", "").(string))
 	parm := p.Get("parm", toolkit.M{}).(toolkit.M)
 	verbose := parm.Get("verbose", false).(bool)
@@ -225,7 +225,7 @@ func (p *PipeItem) Run(dataRun toolkit.M) error {
 		p.nextItem.allKeysHasBeenSent = p.allKeysHasBeenSent
 		p.nextItem.Set("parm", parm)
 		p.nextItem.Set("in", iouts)
-		return p.nextItem.Run(nil)
+		return p.nextItem._Run(nil)
 	} else {
 		if wg != nil {
 			wg.Done()

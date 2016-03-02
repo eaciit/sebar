@@ -138,7 +138,7 @@ func (pm *ParallelManager) Wait() (e error) {
 			go func() {
 				pm.items[maxIndex].Set("parm", pm.parm)
 				pm.items[maxIndex].Set("in", k)
-				erun := pm.items[maxIndex].Run(nil)
+				erun := pm.items[maxIndex]._Run(nil)
 				if erun != nil {
 					wgDone(wg)
 					fmt.Println("Error", erun.Error())
