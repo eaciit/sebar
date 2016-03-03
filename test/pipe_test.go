@@ -39,7 +39,7 @@ func TestLoad(t *testing.T) {
 	if e != nil {
 		t.Fatalf("Error load: " + e.Error())
 	}
-	pipe1.AllKeysHasBeenSent()
+	//pipe1.AllKeysHasBeenSent()
 	e = pipe1.Wait()
 	if e != nil {
 		t.Fatalf("Error wait: " + e.Error())

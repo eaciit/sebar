@@ -96,22 +96,19 @@ func (p *Pipe) Exec(parm toolkit.M) error {
 
 	parm.Set("verbose", true)
 	p.Items[0].Set("parm", parm)
-	running := true
 	dataIndex := -1
 	p.source.First()
 	p.Items[0].reset()
 	p.allKeysHasBeenSent = false
-	go func() {
-		for running {
-			dataItem, hasData := p.source.Next()
-			if hasData {
-				dataIndex++
-				p.Items[0].send(dataItem)
-			} else {
-				running = false
-			}
+	for !p.allKeysHasBeenSent {
+		dataItem, hasData := p.source.Next()
+		if hasData {
+			dataIndex++
+			p.Items[0].send(dataItem)
+		} else {
+			p.allKeysHasBeenSent = true
 		}
-	}()
+	}
 	return nil
 }
 
