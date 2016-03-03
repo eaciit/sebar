@@ -8,13 +8,23 @@ import (
 	"time"
 )
 
+type PipeItemState string
+
+const (
+	PipeItemReady   PipeItemState = "Ready"
+	PipeItemRunning PipeItemState = "Running"
+	PipeItemDone    PipeItemState = "Done"
+)
+
 type PipeItem struct {
 	sync.Mutex
 	attributes         toolkit.M
 	nextItem           *PipeItem
 	noParralelism      bool
+	keyCount           int
 	allKeysHasBeenSent bool
 
+	state           PipeItemState
 	parallelManager *ParallelManager
 	reduceTemp      interface{}
 	waiting         bool
@@ -25,6 +35,10 @@ func (p *PipeItem) initAttributes() {
 	if p.attributes == nil {
 		p.attributes = toolkit.M{}
 	}
+}
+
+func (p *PipeItem) AllKeysHasBeenSent() {
+	p.allKeysHasBeenSent = true
 }
 
 func (p *PipeItem) Set(k string, v interface{}) {
@@ -39,6 +53,16 @@ func (p *PipeItem) Get(k string, def interface{}) interface{} {
 
 func (p *PipeItem) SetError(err string) error {
 	return nil
+}
+
+func (p *PipeItem) reset() {
+	p.keyCount = 0
+	p.wg = nil
+	p.state = PipeItemReady
+
+	if p.nextItem != nil {
+		p.nextItem.reset()
+	}
 }
 
 func (p *PipeItem) Wait() error {
@@ -65,7 +89,14 @@ func (p *PipeItem) Wait() error {
 	if p.wg != nil {
 		p.wg.Wait()
 	}
+
+	p.state = PipeItemDone
 	return nil
+}
+
+func (p *PipeItem) verbose(txt string) {
+	//parm := p.parm()
+	toolkit.Printf("[%d] %s \n", p.keyCount, txt)
 }
 
 func (p *PipeItem) send(k interface{}) {
@@ -73,8 +104,28 @@ func (p *PipeItem) send(k interface{}) {
 		p.wg = new(sync.WaitGroup)
 	}
 
+	parm := p.parm()
+
+	p.keyCount++
+	edata := toolkit.M{}
+	edata.Set("data", k)
+	edata.Set("dataindex", p.keyCount)
+
+	if parm.Get("verbose", false).(bool) {
+		p.verbose(toolkit.Sprintf("p.send: %s", toolkit.JsonString(edata)))
+	}
+
 	p.wg.Add(1)
-	p.execute(k)
+	p.execute(edata)
+}
+
+func (p *PipeItem) parm() toolkit.M {
+	parm := p.Get("parm", nil)
+	if parm == nil {
+		return toolkit.M{}
+	} else {
+		return parm.(toolkit.M)
+	}
 }
 
 func wgDone(wg *sync.WaitGroup) {
@@ -84,20 +135,24 @@ func wgDone(wg *sync.WaitGroup) {
 	}
 }
 
-func (p *PipeItem) execute(k interface{}) {
+func (p *PipeItem) execute(executeData toolkit.M) {
 	defer p.wg.Done()
-
-	var nextIn interface{}
-	nextIn = k
-	p.sendToNext(nextIn)
+	if p.state != PipeItemRunning {
+		p.state = PipeItemRunning
+	}
+	p.sendToNext(executeData)
 	return
 }
 
-func (p *PipeItem) sendToNext(in interface{}) {
+func (p *PipeItem) sendToNext(executeData toolkit.M) {
 	if p.nextItem == nil {
 		return
 	} else {
-		p.nextItem.Set("parm", p.Get("parm", nil))
+		p.nextItem.Set("parm", p.parm())
+		if executeData == nil {
+			executeData = toolkit.M{}
+		}
+		in := executeData.Get("data", nil)
 		p.nextItem.send(in)
 	}
 }

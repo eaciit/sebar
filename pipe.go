@@ -27,12 +27,20 @@ type Pipe struct {
 	err    error
 	output interface{}
 
-	waitGroup      *sync.WaitGroup
-	_waitingPeriod time.Duration
+	waitGroup          *sync.WaitGroup
+	_waitingPeriod     time.Duration
+	allKeysHasBeenSent bool
 }
 
 func (p *Pipe) SetWaitingPeriod(t time.Duration) {
 	p._waitingPeriod = t
+}
+
+func (p *Pipe) AllKeysHasBeenSent() {
+	p.allKeysHasBeenSent = true
+	if len(p.Items) > 0 {
+		p.Items[0].AllKeysHasBeenSent()
+	}
 }
 
 func (p *Pipe) WaitingPeriod() time.Duration {
@@ -86,17 +94,24 @@ func (p *Pipe) Exec(parm toolkit.M) error {
 		parm = toolkit.M{}
 	}
 
+	parm.Set("verbose", true)
 	p.Items[0].Set("parm", parm)
 	running := true
 	dataIndex := -1
 	p.source.First()
-	for running {
-		dataItem, hasData := p.source.Next()
-		if hasData {
-			dataIndex++
-			p.Items[0].send(dataItem)
+	p.Items[0].reset()
+	p.allKeysHasBeenSent = false
+	go func() {
+		for running {
+			dataItem, hasData := p.source.Next()
+			if hasData {
+				dataIndex++
+				p.Items[0].send(dataItem)
+			} else {
+				running = false
+			}
 		}
-	}
+	}()
 	return nil
 }
 
@@ -105,21 +120,11 @@ func (p *Pipe) Wait() error {
 		return nil
 	}
 
-	if p.waitGroup == nil {
-		return nil
+	ewait := p.Items[0].Wait()
+	if ewait != nil {
+		p.SetError("pipe.Wait" + ewait.Error())
 	}
 
-	p.waitGroup.Wait()
-
-	/*
-		for {
-			if p.Items[0].allKeysHasBeenSent {
-				break
-			} else {
-				time.Sleep(p.WaitingPeriod())
-			}
-		}
-	*/
 	return nil
 }
 

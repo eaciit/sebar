@@ -3,8 +3,9 @@ package v1dev_test
 import (
 	"github.com/eaciit/sebar"
 	"github.com/eaciit/toolkit"
+	"os"
 	"testing"
-	"time"
+	//"time"
 )
 
 var dataCount int = 200
@@ -15,6 +16,10 @@ var outs []int
 type DataOut struct {
 	Group int
 	X     int
+}
+
+func osExit() {
+	os.Exit(1000)
 }
 
 func TestPrepareData(t *testing.T) {
@@ -34,6 +39,11 @@ func TestLoad(t *testing.T) {
 	if e != nil {
 		t.Fatalf("Error load: " + e.Error())
 	}
+	pipe1.AllKeysHasBeenSent()
+	e = pipe1.Wait()
+	if e != nil {
+		t.Fatalf("Error wait: " + e.Error())
+	}
 	if len(outs) != len(dataPipe) {
 		t.Fatalf("Error: want %d data got %d", len(dataPipe), len(outs))
 	}
@@ -46,6 +56,7 @@ func TestLoad(t *testing.T) {
 	toolkit.Printfn("Data: " + toolkit.JsonString(outs[0:20]))
 }
 
+/*
 func TestWhereMap(t *testing.T) {
 	var outsmap []struct {
 		X int

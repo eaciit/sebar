@@ -19,9 +19,11 @@ type IPipeSource interface {
 	First() interface{}
 	Next() (interface{}, bool)
 	Seek(int, SeekFromEnum) interface{}
+	Done() bool
 }
 
 type PipeSource struct {
+	done       bool
 	data       interface{}
 	currentPos int
 	dataLen    int
@@ -49,6 +51,14 @@ func (p *PipeSource) SetData(data interface{}) IPipeSource {
 	return p
 }
 
+func (p *PipeSource) SetDone(d bool) {
+	p.done = d
+}
+
+func (p *PipeSource) Done() bool {
+	return p.done
+}
+
 func (p *PipeSource) Len() int {
 	return toolkit.SliceLen(p.data)
 }
@@ -58,15 +68,17 @@ func (p *PipeSource) CurrentPos() int {
 }
 
 func (p *PipeSource) First() interface{} {
+	p.done = false
+	p.currentPos = 0
 	if p.Len() == 0 {
 		return nil
 	}
-	p.currentPos = 0
 	return toolkit.SliceItem(p.data, 0)
 }
 
 func (p *PipeSource) Next() (interface{}, bool) {
 	if p.currentPos >= p.Len()-1 {
+		p.done = true
 		return nil, false
 	}
 	p.currentPos++
