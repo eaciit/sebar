@@ -19,6 +19,8 @@ type IPipeSource interface {
 	First() interface{}
 	Next() (interface{}, bool)
 	Seek(int, SeekFromEnum) interface{}
+	IsAsync() bool
+	SetAsync(b bool)
 	Done() bool
 }
 
@@ -27,6 +29,15 @@ type PipeSource struct {
 	data       interface{}
 	currentPos int
 	dataLen    int
+	isAsync    bool
+}
+
+func (p *PipeSource) IsAsync() bool {
+	return p.isAsync
+}
+
+func (p *PipeSource) SetAsync(b bool) {
+	p.isAsync = b
 }
 
 func (p *PipeSource) Data() interface{} {
