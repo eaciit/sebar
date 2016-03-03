@@ -188,7 +188,7 @@ func (p *PipeItem) _Run(dataRun toolkit.M) error {
 				p.parallelManager.Wait()
 			}
 
-			p.parallelManager.SendKey(pIn)
+			p.parallelManager.Send(pIn)
 			p.parallelManager.allKeysHasBeenSent = p.allKeysHasBeenSent
 			return nil
 		}

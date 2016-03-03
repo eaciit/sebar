@@ -62,7 +62,7 @@ func copyItem(pi *PipeItem) {
 	pi.nextItem = nextItem
 }
 
-func (pm *ParallelManager) SendKey(k interface{}) {
+func (pm *ParallelManager) Send(k interface{}) {
 	pm.Lock()
 	var least, leastIndex int
 	for i := 0; i < len(pm.keys); i++ {
