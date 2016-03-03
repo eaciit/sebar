@@ -140,7 +140,7 @@ func (pm *ParallelManager) Wait() (e error) {
 				pm.items[maxIndex].Set("in", k)
 				erun := pm.items[maxIndex]._Run(nil)
 				if erun != nil {
-					wgDone(wg)
+					//wgDone(wg)
 					fmt.Println("Error", erun.Error())
 				} else {
 					//fmt.Print("Run")

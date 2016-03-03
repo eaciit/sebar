@@ -128,12 +128,14 @@ func (p *PipeItem) parm() toolkit.M {
 	}
 }
 
+/*
 func wgDone(wg *sync.WaitGroup) {
 	if wg != nil {
 		//toolkit.Println("Done 1 elem of WaitGroup")
 		wg.Done()
 	}
 }
+*/
 
 func (p *PipeItem) execute(executeData toolkit.M) {
 	defer p.wg.Done()
@@ -167,7 +169,7 @@ func (p *PipeItem) _Run(dataRun toolkit.M) error {
 
 	if op == "" {
 		//p.Set("error", "OP is mandatory")
-		wgDone(wg)
+		//wgDone(wg)
 		return p.SetError("OP is mandatory")
 	}
 
@@ -195,7 +197,7 @@ func (p *PipeItem) _Run(dataRun toolkit.M) error {
 	//fn := p.Get("fn_"+op, nil)
 	fn := p.Get("fn", nil)
 	if fn == nil {
-		wgDone(wg)
+		//wgDone(wg)
 		return p.SetError(toolkit.Sprintf("Function %s is not available", op))
 	}
 
@@ -262,7 +264,7 @@ func (p *PipeItem) _Run(dataRun toolkit.M) error {
 	}
 
 	if op == "where" && iouts[0] == false {
-		wgDone(wg)
+		//wgDone(wg)
 		return nil
 	} else if op == "where" && iouts[0] == true {
 		iouts = []interface{}{}
