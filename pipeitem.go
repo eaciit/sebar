@@ -137,15 +137,6 @@ func wgDone(wg *sync.WaitGroup) {
 }
 */
 
-func (p *PipeItem) execute(executeData toolkit.M) {
-	defer p.wg.Done()
-	if p.state != PipeItemRunning {
-		p.state = PipeItemRunning
-	}
-	p.sendToNext(executeData)
-	return
-}
-
 func (p *PipeItem) sendToNext(executeData toolkit.M) {
 	if p.nextItem == nil {
 		return
@@ -157,6 +148,15 @@ func (p *PipeItem) sendToNext(executeData toolkit.M) {
 		in := executeData.Get("data", nil)
 		p.nextItem.send(in)
 	}
+}
+
+func (p *PipeItem) execute(executeData toolkit.M) {
+	defer p.wg.Done()
+	if p.state != PipeItemRunning {
+		p.state = PipeItemRunning
+	}
+	p.sendToNext(executeData)
+	return
 }
 
 func (p *PipeItem) _Run(dataRun toolkit.M) error {
